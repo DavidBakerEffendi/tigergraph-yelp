@@ -1,0 +1,8 @@
+# !/bin/bash
+for f in ../yelp-normalization/out/*.csv
+do
+	echo "Copying $f"
+	docker cp $f tigergraph-yelp:/home/tigergraph/tigergraph/loadingData/
+done
+echo "Copying yelp-loader.gsql"
+docker cp yelp-loader.gsql tigergraph-yelp:/home/tigergraph/

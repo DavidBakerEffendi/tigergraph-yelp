@@ -1,0 +1,52 @@
+USE GRAPH MyGraph
+
+DROP JOB loadYelp
+CREATE LOADING JOB loadYelp FOR GRAPH MyGraph {
+    DEFINE FILENAME fBus = "~/tigergraph/loadingData/business_0.01.csv";
+    DEFINE FILENAME fCat = "~/tigergraph/loadingData/categories_0.01.csv";
+    DEFINE FILENAME fUse = "~/tigergraph/loadingData/users_0.01.csv";
+    DEFINE FILENAME fFnd = "~/tigergraph/loadingData/friendships_0.01.csv";
+    DEFINE FILENAME fRev = "~/tigergraph/loadingData/reviews_0.01.csv";
+
+    # Load data from business files
+    LOAD fBus
+        TO VERTEX Business VALUES ($"business_id", $"address", $"postal_code", $"stars", $"is_open", $"name")
+        USING header="true", separator=",";
+    LOAD fBus
+        TO EDGE Business_Geo VALUES ($"business_id", getGridId($"latitude", $"longitude"), $"latitude", $"longitude")
+        USING header="true", separator=",";
+    LOAD fBus
+        TO VERTEX City VALUES ($"city")
+        USING header="true", separator=",";
+    LOAD fBus
+        TO EDGE In_City VALUES ($"business_id", $"city")
+        USING header="true", separator=",";
+    LOAD fBus
+        TO VERTEX State VALUES ($"state")
+        USING header="true", separator=",";
+    LOAD fBus
+        TO EDGE In_State VALUES ($"city", $"state")
+        USING header="true", separator=",";
+    LOAD fCat
+        TO VERTEX Category VALUES ($"category")
+        USING header="true", separator=",";
+    LOAD fCat
+        TO EDGE In_Category VALUES ($"business_id", $"category")
+        USING header="true", separator=",";
+
+    # Load data from users files
+    LOAD fUse
+        TO VERTEX User VALUES ($"user_id", $"name", $"yelping_since", $"useful", $"funny", $"cool", $"fans")
+        USING header="true", separator=",";
+    LOAD fFnd
+        TO EDGE Friends VALUES ($"user_id", $"friend_id")
+        USING header="true", separator=",";
+    
+    # Load data from review files
+    LOAD fRev
+        TO EDGE Reviews VALUES ($"user_id", $"business_id", $"stars", $"useful", $"funny", $"cool", $"text", $"date", $"review_id")
+        USING header="true", separator=",";
+}
+
+
+RUN LOADING JOB loadYelp
