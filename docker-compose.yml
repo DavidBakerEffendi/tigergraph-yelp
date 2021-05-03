@@ -8,7 +8,7 @@ services:
             - "9000:9000"
             - "14240:14240"
         volumes:
-            - tigergraph-yelp:/var/lib/tigergraph/data
+            - tigergraph-yelp:/home/tigergraph/tigergraph/data
         ulimits:
             nofile:
                 soft: 1000000
